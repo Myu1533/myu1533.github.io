@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <!-- for 360 -->
+  <meta name="renderer" content="webkit">
+  <!-- stop baidu TransCoding -->
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <!-- about me -->
+  <meta name="author" content="Myu, diabolos.man@gmail.com">
+  <!-- index for search engine -->
+  <meta name="robots" content="index, follow">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>vue ssr 基本用法(译)</title>
+  <meta name="description" content="Installation">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+  <link rel="canonical" href="/translate/2017/05/31/vue-ssr-guide.html">
+  <link rel="alternate" type="application/rss+xml" title="满大哈哈" href="/feed.xml"> 
+</head>
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" href="/">满大哈哈</a>
+  
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <!-- <div class="trigger">
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/vuepress/">翻译</a>
+            
+          
+            
+            
+            <a class="page-link" href="/index.html">满大哈哈</a>
+            
+          
+            
+            
+          
+        </div> -->
+        <div class="trigger">
+          <!--
+              my_page.autogen is populated by the pagination logic for all pages
+                              that are automatically created by the gem. Check for non-existence to exclude pagination pages from site.pages iterators
+            -->
+            
+          
+            
+          
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+          
+            
+            <a class="page-link" href="/vuepress/">翻译</a>
+            
+          
+            
+            <a class="page-link" href="/index.html">满大哈哈</a>
+            
+          
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">vue ssr 基本用法(译)</h1>
+    <p class="post-meta">
+      <time datetime="2017-05-31T00:00:00+08:00" itemprop="datePublished">
+        
+        May 31, 2017
+      </time>
+      </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h3 id="installation">Installation</h3>
+
+<h3 id="安装">安装</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install vue vue-server-renderer <span class="nt">--save</span>
+</code></pre></div></div>
+
+<p>We will be using NPM throughout the guide, but feel free to use <a href="https://yarnpkg.com/en/">Yarn</a> instead.</p>
+
+<p>整个指南我们都用 NPM，不过也可以用 <a href="https://yarnpkg.com/en/">Yarn</a> 代替。</p>
+
+<h4 id="notes">Notes</h4>
+
+<h4 id="注意">注意</h4>
+
+<p>It’s recommended to use Node.js version 6+.
+vue-server-renderer
+and vue
+must have matching versions.</p>
+
+<p>建议 Node v6 以上。
+vue-server-renderer
+和 vue
+必须用对应的版本。
+vue-server-renderer
+relies on some Node.js native modules and therefore can only be used in Node.js.</p>
+
+<p>vue-server-renderer 依赖 Node 本身的模块，因此只能应用在 node 上面。</p>
+
+<p>We may provide a simpler build that can be run in other JavaScript runtimes in the future.</p>
+
+<p>我们在未来会提供可以跑在其他 js 解析器的更简单的构建。</p>
+
+<h3 id="rendering-a-vue-instance">Rendering a Vue Instance</h3>
+
+<h3 id="渲染-vue-实例">渲染 Vue 实例</h3>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Step 1: Create a Vue instance</span>
+<span class="c1">// 第一步： 创建Vue实例</span>
+<span class="kd">const</span> <span class="nx">Vue</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'vue'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Vue</span><span class="p">({</span>
+  <span class="na">template</span><span class="p">:</span> <span class="s2">`&lt;div&gt;Hello World&lt;/div&gt;`</span>
+<span class="p">});</span>
+
+<span class="c1">// Step 2: Create a renderer</span>
+<span class="c1">// 第二步：创建渲染器</span>
+<span class="kd">const</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'vue-server-renderer'</span><span class="p">).</span><span class="nx">createRenderer</span><span class="p">();</span>
+
+<span class="c1">// Step 3: Render the Vue instance to HTML</span>
+<span class="c1">// 第三步：把Vue实例渲染到HTML</span>
+<span class="nx">renderer</span><span class="p">.</span><span class="nx">renderToString</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">html</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">);</span>
+  <span class="c1">// =&gt; &lt;div data-server-rendered="true"&gt;hello world&lt;/div&gt;</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<h3 id="integrating-with-a-server">Integrating with a Server</h3>
+
+<h3 id="服务端集成">服务端集成</h3>
+
+<p>It is pretty straightforward when used inside a Node.js server, for example <a href="https://expressjs.com/">Express</a>:</p>
+
+<p>在 Node 里面使用相当的简单，例如<a href="https://expressjs.com/">Express</a>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install express <span class="nt">--save</span>
+</code></pre></div></div>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">Vue</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'vue'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'express'</span><span class="p">)();</span>
+<span class="kd">const</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'vue-server-renderer'</span><span class="p">).</span><span class="nx">createRenderer</span><span class="p">();</span>
+<span class="nx">server</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">'*'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Vue</span><span class="p">({</span>
+    <span class="na">data</span><span class="p">:</span> <span class="p">{</span> <span class="na">url</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">url</span> <span class="p">},</span>
+    <span class="na">template</span><span class="p">:</span> <span class="s2">`&lt;div&gt;The visited URL is: &lt;/div&gt;`</span>
+  <span class="p">});</span>
+  <span class="nx">renderer</span><span class="p">.</span><span class="nx">renderToString</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">html</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nx">end</span><span class="p">(</span><span class="s1">'Internal Server Error'</span><span class="p">);</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span>
+      <span class="s2">` &lt;!DOCTYPE html&gt; &lt;html lang="en"&gt; &lt;head&gt;&lt;title&gt;Hello&lt;/title&gt;&lt;/head&gt; &lt;body&gt;</span><span class="p">${</span><span class="nx">html</span><span class="p">}</span><span class="s2">&lt;/body&gt; &lt;/html&gt; `</span>
+    <span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+<span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">8080</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="using-a-page-template">Using a Page Template</h3>
+
+<h3 id="使用页面模板">使用页面模板</h3>
+
+<p>When you render a Vue app, the renderer only generates the markup of the app.</p>
+
+<p>当你渲染 Vue 应用的时候，渲染器只生成应用的标记。</p>
+
+<p>In the example we had to wrap the output with an extra HTML page shell.</p>
+
+<p>在案例里，我们用一个额外的 HTML 页面可以包裹输出。</p>
+
+<p>To simplify this, you can directly provide a page template when creating the renderer.</p>
+
+<p>为简化这步操作，你可以在创建渲染器的时候直接提供页面模板。</p>
+
+<p>Most of the time we will put the page template in its own file, e.g. index.template.html:</p>
+
+<p>大多数时候我们把页面模板放在它自己的文件里，例如 index.template.html：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Hello<span class="nt">&lt;/title&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="c">&lt;!--vue-ssr-outlet--&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>Notice the <!--vue-ssr-outlet--> comment – this is where your app’s markup will be injected.</p>
+
+<h4 id="注意语句这里将是应用标记要注入的地方">注意<!--vue-ssr-outlet-->语句，这里将是应用标记要注入的地方。</h4>
+
+<p>We can then read and pass the file to the Vue renderer:</p>
+
+<p>我们将读取并传送文件给 Vue 的渲染器：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">createRenderer</span><span class="p">({</span>
+  <span class="na">template</span><span class="p">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">).</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s1">'./index.template.html'</span><span class="p">,</span> <span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="p">});</span>
+<span class="nx">renderer</span><span class="p">.</span><span class="nx">renderToString</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">html</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">);</span>
+  <span class="c1">// will be the full page with app content injected.</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<h3 id="template-interpolation">Template Interpolation</h3>
+
+<h3 id="模板插入">模板插入</h3>
+
+<p>The template also supports simple interpolation.</p>
+
+<p>模板支持简单插入</p>
+
+<p>Given the following template:</p>
+
+<p>上例子：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+ <span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;title&gt;</span>title<span class="nt">&lt;/title&gt;</span>
+  <span class="c">&lt;!-- meta --&gt;</span>
+ <span class="nt">&lt;/head&gt;</span>
+ <span class="nt">&lt;body&gt;</span>
+ <span class="c">&lt;!--vue-ssr-outlet--&gt;</span>
+ <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>We can provide interpolation data by passing a “render context object” as the second argument to renderToString
+:</p>
+
+<p>我们提供通过传递‘渲染上下文对象’作为第二参数的插入数据：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">context</span> <span class="o">=</span> <span class="p">{</span> <span class="na">title</span><span class="p">:</span> <span class="s1">'hello'</span><span class="p">,</span> <span class="na">meta</span><span class="p">:</span> <span class="s2">` &lt;meta ...&gt; &lt;meta ...&gt; `</span> <span class="p">};</span>
+<span class="nx">renderer</span><span class="p">.</span><span class="nx">renderToString</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">html</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// page title will be "hello"</span>
+  <span class="c1">// with meta tags injected</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>The context object can also be shared with the Vue app instance, allowing components to dynamically register data for template interpolation.</p>
+
+<p>上下文对象可以和 Vue 应用实例共享，允许组件动态的给模板插入注册数据。</p>
+
+<p>In addition, the template supports some advanced features such as:</p>
+
+<p>此外，模板支持一些高级特性，例如：</p>
+
+<p>Auto injection of critical CSS when using *.vue components;</p>
+
+<p>在使用 vue 单页组件的时候自动注入 css</p>
+
+<p>Auto injection of asset links and resource hints when using clientManifest;</p>
+
+<p>当使用 clientManifest 的时候，自动注入资源链接和资源提示；</p>
+
+<p>Auto injection and XSS prevention when embedding Vuex state for client-side hydration.</p>
+
+<p>当在客户端混合 Vuex 买点的时候，自动注入和阻止 XSS。</p>
+
+<p>We will discuss these when we introduce the associated concepts later in the guide.</p>
+
+<p>在指南里，我们将在介绍聚合概念的时候继续讨论。</p>
+
+  </div>
+
+  
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">满大哈哈</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>
+            
+              满大哈哈
+            
+            </li>
+            
+            <li><a href="mailto:diabolos.man@gmail.com">diabolos.man@gmail.com</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/Myu1533"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">Myu1533</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/YuDiabolos"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">YuDiabolos</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>花名：满大哈哈，前端工程师，目标就是技术工程师，专注在所有的兴趣范围内</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

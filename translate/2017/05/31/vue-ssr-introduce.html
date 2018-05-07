@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <!-- for 360 -->
+  <meta name="renderer" content="webkit">
+  <!-- stop baidu TransCoding -->
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <!-- about me -->
+  <meta name="author" content="Myu, diabolos.man@gmail.com">
+  <!-- index for search engine -->
+  <meta name="robots" content="index, follow">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>vue ssr 简介(译)</title>
+  <meta name="description" content="Vue.js Server-Side Rendering Guide">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+  <link rel="canonical" href="/translate/2017/05/31/vue-ssr-introduce.html">
+  <link rel="alternate" type="application/rss+xml" title="满大哈哈" href="/feed.xml"> 
+</head>
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" href="/">满大哈哈</a>
+  
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <!-- <div class="trigger">
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/vuepress/">翻译</a>
+            
+          
+            
+            
+            <a class="page-link" href="/index.html">满大哈哈</a>
+            
+          
+            
+            
+          
+        </div> -->
+        <div class="trigger">
+          <!--
+              my_page.autogen is populated by the pagination logic for all pages
+                              that are automatically created by the gem. Check for non-existence to exclude pagination pages from site.pages iterators
+            -->
+            
+          
+            
+          
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+          
+            
+            <a class="page-link" href="/vuepress/">翻译</a>
+            
+          
+            
+            <a class="page-link" href="/index.html">满大哈哈</a>
+            
+          
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">vue ssr 简介(译)</h1>
+    <p class="post-meta">
+      <time datetime="2017-05-31T00:00:00+08:00" itemprop="datePublished">
+        
+        May 31, 2017
+      </time>
+      </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h3 id="vuejs-server-side-rendering-guide">Vue.js Server-Side Rendering Guide</h3>
+
+<h3 id="vuejs-服务端渲染指南">Vue.js 服务端渲染指南</h3>
+
+<h6 id="note-this-guide-requires-the-following-minimum-versions-of-vue-and-supporting-libraries"><strong>Note:</strong> this guide requires the following minimum versions of Vue and supporting libraries:</h6>
+
+<h6 id="注该指南至少需要的最低版本的-vue-核心库和支持库"><strong>注：</strong>该指南至少需要的最低版本的 Vue 核心库和支持库：</h6>
+
+<h6 id="vue--vue-server-renderer--230">vue &amp; vue-server-renderer &gt;= 2.3.0</h6>
+
+<h6 id="vue-router--250">vue-router &gt;= 2.5.0</h6>
+
+<h6 id="vue-loader--1200--vue-style-loader--300">vue-loader &gt;= 12.0.0 &amp; vue-style-loader &gt;= 3.0.0</h6>
+
+<p>If you have previously used Vue 2.2 with SSR, you will notice that the recommended code structure is
+now <a href="https://ssr.vuejs.org/en/structure.html">a bit different</a> (with the new <a href="https://ssr.vuejs.org/en/api.html#runinnewcontext">runInNewContext</a> option set to false
+).</p>
+
+<p>若你已经用 Vue 2.2 做服务端渲染（SSR）, 你会发现建议代码实践的提示现在<a href="https://ssr.vuejs.org/en/structure.html">有些不同</a>了(当<a href="https://ssr.vuejs.org/en/api.html#runinnewcontext">runInNewContext</a>选项设置为 false 的时候)</p>
+
+<p>Your existing app should continue to work, but it’s recommended to migrate to the new recommendations.</p>
+
+<p>你的应用会继续工作，但是规范将会迁移到新的推荐规范。</p>
+
+<h3 id="what-is-server-side-rendering-ssr">What is Server-Side Rendering (SSR)?</h3>
+
+<h3 id="什么是服务端渲染ssr">什么是服务端渲染（SSR）？</h3>
+
+<p>Vue.js is a framework for building client-side applications.</p>
+
+<p>Vue.js 是构建客户端应用的框架。</p>
+
+<p>By default, Vue components produce and manipulate DOM in the browser as output.</p>
+
+<p>默认，Vue 组件在浏览器端输出和操作 DOM。</p>
+
+<p>However, it is also possible to render the same components into HTML strings on the server,send them directly to the browser,and finally “hydrate” the static markup into a fully interactive app on the client.</p>
+
+<p>然而，同样可以在服务端渲染相同组件到 HTML 里面，把他们直接发送到浏览器，最后在客户端把静态标签变为富交互的应用。</p>
+
+<p>A server-rendered Vue.js app can also be considered “isomorphic” or “universal”,in the sense that the majority of your app’s code runs on both the server <strong>and</strong> the client.</p>
+
+<p>一个服务端渲染的 Vue.js 应用能被认为是同构的或者是通用的，你应用的大部分代码是运行在服务端和客户端的。</p>
+
+<h3 id="why-ssr">Why SSR?</h3>
+
+<h3 id="为什么要用-ssr">为什么要用 SSR？</h3>
+
+<p>Compared to a traditional SPA (Single-Page Application),the advantage of SSR primarily lies in:</p>
+
+<p>和传统的单页应用相比，SSR 的主要优势有：</p>
+
+<p>Better SEO, as the search engine crawlers will directly see the fully rendered page.</p>
+
+<p>更好的 SEO，搜索引擎的爬虫能直接看到完整的渲染页面。</p>
+
+<p>Note that as of now, Google and Bing can index synchronous JavaScript applications just fine.</p>
+
+<p>到目前为止，google 和 bing 可以很好的索引和同步 JavaScript 应用。</p>
+
+<p>Synchronous being the key word there.</p>
+
+<p>同步是关键。</p>
+
+<p>If your app starts with a loading spinner, then fetches content via Ajax,the crawler will not wait for you to finish.</p>
+
+<p>如果你的应用在启动的时候有个载入列表，通过 AJAX 获取内容，爬虫可不会等着你完成。</p>
+
+<p>This means if you have content fetched asynchronously on pages where SEO is important,SSR might be necessary.</p>
+
+<p>这意味着在重点 SEO 的页面是异步加载的，那么服务器渲染是必然的。</p>
+
+<h4 id="faster-time-to-content">Faster time-to-content,</h4>
+
+<h4 id="更快的内容加载">更快的内容加载，</h4>
+
+<h4 id="especially-on-slow-internet-or-slow-devices">especially on slow internet or slow devices.</h4>
+
+<h4 id="特别是在低速网络或者运行慢的设备上">特别是在低速网络或者运行慢的设备上。</h4>
+
+<p>Server-rendered markup doesn’t need to wait until all JavaScript has been downloaded and executed to be
+displayed, so your user will see a fully-rendered page sooner.</p>
+
+<p>服务器端显示不需要等到所有 js 下载完成和执行才显示，所以你的用户将很快看到整个页面。</p>
+
+<p>This generally results in better user experience, and can be critical for applications where time-to-content is directly associated with conversion rate.</p>
+
+<p>这个结果在用户体验方面是更好的，也能用于评定渲染时间直接关系到转换率的应用。</p>
+
+<h3 id="there-are-also-some-trade-offs-to-consider-when-using-ssr">There are also some trade-offs to consider when using SSR:</h3>
+
+<h3 id="在用-ssr-的时候有几点需要权衡">在用 SSR 的时候,有几点需要权衡：</h3>
+
+<p>Development constraints. Browser-specific code can only be used inside certain lifecycle hooks;some external libraries may need special treatment to be able to run in a server-rendered app.</p>
+
+<p>开发限制。依赖浏览器特性的代码只能在内部关键的生命周期钩子上；一些外部库在服务端渲染应用上也需要特殊处理。</p>
+
+<p>More involved build setup and deployment requirements.</p>
+
+<p>更多的构建设置和发布需求的耦合。</p>
+
+<p>Unlike a fully static SPA that can be deployed on any static file server,a server-rendered app requires an environment where a Node.js server can run.</p>
+
+<p>不在像完整个的静态单页应用该可以被发布在任何静态服务器上，服务端渲染应用更需要一个 node 服务环境。</p>
+
+<h3 id="more-server-side-load">More server-side load.</h3>
+
+<h3 id="更多的服务端加载">更多的服务端加载。</h3>
+
+<p>Rendering a full app in Node.js is obviously going to be more CPU-intensive than just serving static files,so if you expect high traffic, be prepared for corresponding server load and wisely employ caching strategies.</p>
+
+<p>node 渲染一个完整应用，光服务静态文件就需要更多的密集型 CPU。因此如果你期望有高通信，就需要准备相应的服务载入和合理的使用缓存策略。</p>
+
+<p>Before using SSR for your app, the first question you should ask it whether you actually need it.</p>
+
+<p>在应用 SSR 之前，先问问自己是否真的需要。</p>
+
+<p>It mostly depends on how important time-to-content is for your app.</p>
+
+<p>主要依赖于渲染时间对应用的重要程度。</p>
+
+<p>For example, if you are building an internal dashboard where an extra few hundred milliseconds on initial load doesn’t matter that much, SSR would be an overkill.</p>
+
+<p>例如，你在做一个内部仪表盘，额外初始化的时候额外多几百号面也没什么影响，用 SSR 就过分了。</p>
+
+<p>However, in cases where time-to-content is absolutely critical, SSR can help you achieve the best possible initial load performance.</p>
+
+<p>然而，渲染时间是必要的评定标准，SSR 将帮助你在初始化表现上达到最好的可能。</p>
+
+<h3 id="ssr-vs-prerendering">SSR vs Prerendering</h3>
+
+<p>If you’re only investigating SSR to improve the SEO of a handful of marketing pages (e.g. /
+, /about
+, /contact
+, etc), then you probably want <strong>prerendering</strong> instead.</p>
+
+<p>如果你只是需要 SSR 在少数交易页面的 SEO 提升，那么预加载是替代方案。</p>
+
+<p>Rather than using a web server to compile HTML on-the-fly, prerendering simply generates static HTML files for specific routes at build time.</p>
+
+<p>相比于网页编译即时 HTML，在构建的时候预加载可以以简单方式生成特殊路由的静态 HTML 文件。</p>
+
+<p>The advantage is setting up prerendering is much simpler and allows you to keep your frontend as a fully static site.</p>
+
+<p>设置预加载的优势是更简单，允许你保持前端是一个完整的前端站点。</p>
+
+<p>If you’re using Webpack, you can easily add prerendering with the <a href="https://github.com/chrisvfritz/prerender-spa-plugin">prerender-spa-plugin</a>.</p>
+
+<p>如果你用 Webpack，你用 <a href="https://github.com/chrisvfritz/prerender-spa-plugin">prerender-spa-plugin</a>就可以轻易的增加预加载功能。</p>
+
+<p>It’s been extensively tested with Vue apps - and in fact, <a href="https://github.com/chrisvfritz">the creator</a> is a member of the Vue core team.</p>
+
+<p>事实上，这已经被广泛的应用在 Vue 应用上，<a href="https://github.com/chrisvfritz">创造者</a>来自于 Vue 核心代码团队。</p>
+
+<h3 id="about-this-guide">About This Guide</h3>
+
+<h3 id="关于这份指南">关于这份指南</h3>
+
+<p>This guide is focused on server-rendered Single-Page Applications using Node.js as the server.</p>
+
+<p>这份指南专注于用 Node 作为服务器的服务器端渲染的单页应用。</p>
+
+<p>Mixing Vue SSR with other backend setups is a topic of its own and is not covered in this guide.</p>
+
+<p>在其他后端服务用 Vue SSR 是另外一个话题，本指南将不会包含这方面的内容。</p>
+
+<p>This guide will be very in-depth and assumes you are already familiar with Vue.js itself, and have decent working knowledge of Node.js and webpack.</p>
+
+<p>这份指南非常深入解析 Vue SSR，是你以已经熟悉 Vue.js,掌握 node 和 webpack 的相关知识为前提。</p>
+
+<p>If you prefer a higher-level solution that provides a smooth out-of-the-box experience, you should probably give <a href="http://nuxtjs.org/">Nuxt.js</a> a try.</p>
+
+<p>如果你更倾向于用过更高级的，提供封装完好的体验的解决方案，你应该试试 <a href="http://nuxtjs.org/">Nuxt.js</a> 。</p>
+
+<p>It’s built upon the same Vue stack but abstracts away a lot of the boilerplate, and provides some extra features such as static site generation.</p>
+
+<p>它同样建立在 Vue 的堆栈上面，但是抽了很多引用，并提供一些额外特性，例如静态站点迭代器。</p>
+
+<p>However, it may not suit your use case if you need more direct control of your app’s structure.</p>
+
+<p>然而，如果你对你的应用该结构需要更多直接操作，<a href="http://nuxtjs.org/">Nuxt.js</a> 可能不适合。</p>
+
+<p>Regardless, it would still be beneficial to read through this guide to better understand how things work together.</p>
+
+<p>无论如何，通过阅读本指南有助于理解所有事务是如何一起共工作的。</p>
+
+<p>As you read along, it would be helpful to refer to the official <a href="https://github.com/vuejs/vue-hackernews-2.0/">HackerNews Demo</a>, which makes use of most of the techniques covered in this guide.</p>
+
+<p>就像你看到的，参考官方案例<a href="https://github.com/vuejs/vue-hackernews-2.0/">HackerNews Demo</a>，因为里面对指南里涉及的大多数技术的用法都有包含。</p>
+
+<p>Finally, note that the solutions in this guide are not definitive - we’ve found them to be working well for us, but that doesn’t mean they cannot be improved.</p>
+
+<p>最后，注意指南里的解决方案不是一定的，虽然对于我们来说他们工作的很好，并不意味着它们是不可改进的。</p>
+
+<p>They might get revised in the future - and feel free to contribute by submitting pull requests!</p>
+
+<p>他们在未来可能会被修改，欢迎提交 pr 来提交贡献。</p>
+
+  </div>
+
+  
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">满大哈哈</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>
+            
+              满大哈哈
+            
+            </li>
+            
+            <li><a href="mailto:diabolos.man@gmail.com">diabolos.man@gmail.com</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/Myu1533"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">Myu1533</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/YuDiabolos"><span class="icon icon--twitter"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">YuDiabolos</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>花名：满大哈哈，前端工程师，目标就是技术工程师，专注在所有的兴趣范围内</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

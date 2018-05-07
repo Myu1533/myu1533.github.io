@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>VuePress | 自定义主题</title>
+    <meta name="description" content="translation for VuePress">
+    
+    
+    <link rel="preload" href="/vuepress/assets/css/0.styles.1b4d359f.css" as="style"><link rel="preload" href="/vuepress/assets/js/app.c825b02c.js" as="script"><link rel="preload" href="/vuepress/assets/js/7.1cf34d3f.js" as="script"><link rel="prefetch" href="/vuepress/assets/js/6.674d25a0.js"><link rel="prefetch" href="/vuepress/assets/js/1.b04a3e4c.js"><link rel="prefetch" href="/vuepress/assets/js/2.0a11c381.js"><link rel="prefetch" href="/vuepress/assets/js/3.3623aeda.js"><link rel="prefetch" href="/vuepress/assets/js/4.9f9150f5.js"><link rel="prefetch" href="/vuepress/assets/js/5.04e8eb9f.js"><link rel="prefetch" href="/vuepress/assets/js/8.4a59d179.js"><link rel="prefetch" href="/vuepress/assets/js/9.081067cc.js"><link rel="prefetch" href="/vuepress/assets/js/10.c53633b6.js"><link rel="prefetch" href="/vuepress/assets/js/11.8fd32530.js"><link rel="prefetch" href="/vuepress/assets/js/12.62c74588.js"><link rel="prefetch" href="/vuepress/assets/js/13.fc7d3ce0.js">
+    <link rel="stylesheet" href="/vuepress/assets/css/0.styles.1b4d359f.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div><a href="/vuepress/" class="home-link router-link-active"><!----><span class="site-name">
+      VuePress
+    </span></a><div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""><!----></div><nav class="nav-links can-hide"><div class="nav-item"><a href="/vuepress/guide/" class="nav-link router-link-active">指南</a></div><div class="nav-item"><a href="/vuepress/configReference/" class="nav-link">参考配置</a></div><div class="nav-item"><a href="/vuepress/defaultThemeConfig/" class="nav-link">默认主题</a></div><!----></nav></div></header><div class="sidebar-mask"></div><div class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/vuepress/guide/" class="nav-link router-link-active">指南</a></div><div class="nav-item"><a href="/vuepress/configReference/" class="nav-link">参考配置</a></div><div class="nav-item"><a href="/vuepress/defaultThemeConfig/" class="nav-link">默认主题</a></div><!----></nav><ul class="sidebar-links"><li><a href="/vuepress/guide/" class="sidebar-link">Vuepress 翻译</a></li><li><a href="/vuepress/guide/introduce.html" class="sidebar-link">简介</a></li><li><a href="/vuepress/guide/gettingStart.html" class="sidebar-link">开始</a></li><li><a href="/vuepress/guide/configuration.html" class="sidebar-link">配置</a></li><li><a href="/vuepress/guide/assetHandling.html" class="sidebar-link">资源处理</a></li><li><a href="/vuepress/guide/markdownExtensions.html" class="sidebar-link">Markdown 扩展</a></li><li><a href="/vuepress/guide/useVueInMarkDown.html" class="sidebar-link">在 Markdown 里面使用 Vue</a></li><li><a href="/vuepress/guide/customTheme.html" class="active sidebar-link">自定义主题</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/vuepress/guide/customTheme.html#站点和页面的元信息" class="sidebar-link">站点和页面的元信息</a></li><li class="sidebar-sub-header"><a href="/vuepress/guide/customTheme.html#内容出口" class="sidebar-link">内容出口</a></li><li class="sidebar-sub-header"><a href="/vuepress/guide/customTheme.html#从依赖里使用主题" class="sidebar-link">从依赖里使用主题</a></li><li class="sidebar-sub-header"><a href="/vuepress/guide/customTheme.html#自定义默认主题" class="sidebar-link">自定义默认主题</a></li></ul></li><li><a href="/vuepress/guide/internationalization.html" class="sidebar-link">国际化</a></li><li><a href="/vuepress/guide/deploying.html" class="sidebar-link">部署</a></li></ul></div><div class="page"><div class="content"><h1 id="自定义主题"><a href="#自定义主题" aria-hidden="true" class="header-anchor">#</a> 自定义主题</h1><div class="tip custom-block"><p class="custom-block-title">TIP</p><p>主题组件同样受到<a href="/vuepress/guide/UseVueInMarkDown.html">浏览器 API 的限制</a>。</p></div><p>VuePress 自定义主题使用的是 Vue 的单文件组件。使用一个自定义布局，在文档根目录里创建<code>.vuepress/theme</code>目录，然后创建一个<code>Layout.vue</code>目录：</p><pre class="language-text"><code>.
+└─ .vuepress
+   └─ theme
+      └─ Layout.vue
+</code></pre><p>到这里都是和开发一个普通 Vue 应用一样的。完全取决于你怎样组织你的主题。</p><h2 id="站点和页面的元信息"><a href="#站点和页面的元信息" aria-hidden="true" class="header-anchor">#</a> 站点和页面的元信息</h2><p><code>文档</code>中的每个<code>.md</code>文件都将调用一次<code>布局</code>组件，整个站点的元信息和具体页面都将分别暴露在<code>this.$site</code>和<code>this.$page</code>属性中，这些都将注入到 app 里的每个组件里。</p><p>下面是每个网页的<code>$site</code>值：</p><pre class="language-json"><code><span class="token punctuation">{</span>
+  <span class="token property">&quot;title&quot;</span><span class="token operator">:</span> <span class="token string">&quot;VuePress&quot;</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;description&quot;</span><span class="token operator">:</span> <span class="token string">&quot;Vue-powered Static Site Generator&quot;</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;base&quot;</span><span class="token operator">:</span> <span class="token string">&quot;/&quot;</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;pages&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token property">&quot;path&quot;</span><span class="token operator">:</span> <span class="token string">&quot;/&quot;</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;title&quot;</span><span class="token operator">:</span> <span class="token string">&quot;VuePress&quot;</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;frontmatter&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    ...
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre><p><code>title</code>,<code>description</code>和<code>base</code>从<code>.vuepress/config.js</code>中分别拷贝。<code>pages</code>包含每个页面的元信息对象的数组，包含路径，页面标题（明确定义的<a href="/vuepress/guide/UseVueInMarkDown.html">YAML front matter</a>或者从页面上最前面的头信息中推断），和文件里的其他的<a href="/vuepress/guide/UseVueInMarkDown.html">YAML front matter</a>数据。</p><p>下面是你将看到的<code>$page</code>对象：</p><pre class="language-json"><code><span class="token punctuation">{</span>
+  <span class="token property">&quot;path&quot;</span><span class="token operator">:</span> <span class="token string">&quot;/custom-themes.html&quot;</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;title&quot;</span><span class="token operator">:</span> <span class="token string">&quot;Custom Themes&quot;</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;headers&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    /* ... */
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;frontmatter&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>如果用户在<code>.vuepress/config.js</code>里提供<code>themmeConfig</code>，它也将作为<code>$site.themeConfig</code>出现。你可以利用这个特点来允许用户自定义你的主题行为-例如，提供分类和页面订购信息。你在<code>$site.pages</code>里获得动态的导航链接结构。</p><p>最终，别忘了<code>this.$route</code>和<code>this.$router</code>作为 Vue-Router API 也是可用的。</p><h2 id="内容出口"><a href="#内容出口" aria-hidden="true" class="header-anchor">#</a> 内容出口</h2><p>当前渲染的<code>.md</code>的编译的内容将作为特殊的<code>&lt;Content/&gt;</code>全局组件是可用的。你将需要为了展示页面的内容在布局某些地方渲染它。最简单的主题将类似下面内容的单个<code>Layout.vue</code>组件：</p><pre class="language-html"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>template</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>theme-container<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Content</span><span class="token punctuation">/&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>template</span><span class="token punctuation">&gt;</span></span>
+</code></pre><h2 id="从依赖里使用主题"><a href="#从依赖里使用主题" aria-hidden="true" class="header-anchor">#</a> 从依赖里使用主题</h2><p>主题可以作为原始 Vue SFC 格式的<code>vuepress-theme-xxx</code>发布到 NPM 上。</p><p>从一个 NPM 依赖的使用一个主题，在<code>.vuepress/config.js</code>里提供了一个<code>theme</code>选项：</p><pre class="language-js"><code>module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  theme<span class="token punctuation">:</span> <span class="token string">'awesome'</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre><p>VuePress 将尝试定位和使用<code>node_modules/vuepress-theme-awesome/Layout.vue</code>。</p><h2 id="自定义默认主题"><a href="#自定义默认主题" aria-hidden="true" class="header-anchor">#</a> 自定义默认主题</h2><p><code>vuepress eject [targetDir]</code>命令将把默认主题源代码复制到<code>.vuepress/theme</code>去提供完整的定制。注意，然而，一旦你执行了该操作，在更新 VuePress 的时候,你将只使用你自己的，将不会再收到默认主题的更新或者 bug 修复。</p></div><!----><div class="content page-nav"><p class="inner"><span class="prev">
+        ← <a href="/vuepress/guide/useVueInMarkDown.html" class="prev">
+          在 Markdown 里面使用 Vue
+        </a></span><span class="next"><a href="/vuepress/guide/internationalization.html">
+          国际化
+        </a> →
+      </span></p></div></div></div></div>
+    <script src="/vuepress/assets/js/7.1cf34d3f.js" defer></script><script src="/vuepress/assets/js/app.c825b02c.js" defer></script>
+  </body>
+</html>

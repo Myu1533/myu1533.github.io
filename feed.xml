@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2018-05-07T22:45:25+08:00</updated><id>/</id><title type="html">满大哈哈</title><subtitle>花名：满大哈哈，前端工程师，目标就是技术工程师，专注在所有的兴趣范围内</subtitle><entry><title type="html">利用canvas将html生成为图片</title><link href="/html5/2018/04/29/posterGenerater.html" rel="alternate" type="text/html" title="利用canvas将html生成为图片" /><published>2018-04-29T00:00:00+08:00</published><updated>2018-04-29T00:00:00+08:00</updated><id>/html5/2018/04/29/posterGenerater</id><content type="html" xml:base="/html5/2018/04/29/posterGenerater.html">&lt;h2 id=&quot;需求&quot;&gt;需求&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;HTML内容定制编辑后，把完整的HTML块生成成图片&lt;/li&gt;
+  &lt;li&gt;提供预览&lt;/li&gt;
+  &lt;li&gt;图片清晰&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;选型&quot;&gt;选型&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;现成库直接上的原则：&lt;a href=&quot;https://github.com/niklasvh/html2canvas&quot;&gt;html2canvas&lt;/a&gt;,star 10k+
+需求1完美解决&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;造轮子，自己定制一个简单的生成工具&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;实现&quot;&gt;实现&lt;/h2&gt;
+&lt;p&gt;html2canvas就不细说了，google/baidu的出来很多采坑方案，总体使用没问题，稍微看一下官方的特性说明，一些css属性是不支持的。&lt;/p&gt;
+
+&lt;h3 id=&quot;下面是造轮子时间&quot;&gt;下面是造轮子时间：&lt;/h3&gt;
+&lt;p&gt;提供思路，细节还需慢慢完善&lt;/p&gt;
+
+&lt;p&gt;html/css：&lt;/p&gt;
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;style&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;.demo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;relative&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;300px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;500px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;margin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;auto&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;10px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;border&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1px&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;solid&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;#333&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;.rect1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;30%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;40%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;lightblue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;.rect2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;absolute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;top&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;20%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;right&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;30%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;30%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;40%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;lightcoral&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;.rect3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;absolute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;top&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;40%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;40%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;lightgreen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;.btns&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;text-align&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;center&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;.preview&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nl&quot;&gt;text-align&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;center&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/style&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;section&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;demo&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;rect1&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;rect2&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;rect3&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/section&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;布局上涉及了基础定位，position定位，为了简化造轮子的过程，我把布局按层叠进行了顺序调整，有需要的在布局阶段需要额外的增加元素的层级排序。&lt;/p&gt;
+
+&lt;p&gt;预览：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/20180429/html-preview.jpg&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;javascript片段&quot;&gt;javascript片段&lt;/h3&gt;
+
+&lt;h4 id=&quot;初始化&quot;&gt;初始化&lt;/h4&gt;
+&lt;ol&gt;
+  &lt;li&gt;需要根据目标HTML块的大小来设置canvas的大小&lt;/li&gt;
+  &lt;li&gt;将初始化好的canvas插入到body中，必要时设置隐藏
+    &lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;target&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;targetDOMTree&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;target&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;querySelector&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;target&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;canvas&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createElement&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'canvas'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;canvas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;width&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;targetDOMTree&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;target&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;offsetWidth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;canvas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;height&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;targetDOMTree&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;target&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;offsetHeight&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ctx&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;canvas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getContext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'2d'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;querySelector&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'body'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;appendChild&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;canvas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;画到canvas&quot;&gt;画到canvas&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;取出html块的元素&lt;/li&gt;
+  &lt;li&gt;根据内容判断画图，画文字还是继续查找&lt;/li&gt;
+  &lt;li&gt;取得需要画到canvas的元素的必要css信息，如背景色，高宽，位置等&lt;/li&gt;
+  &lt;li&gt;画起来&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;代码片段提供简单的是否有文字的判断&lt;/p&gt;
+
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;renderToCanvas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;allChildren&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;targetDOMTree&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;target&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;children&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;allChildren&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;allChildren&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;innerTEXT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;save&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fillStyle&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getComputedStyle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;allChildren&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;backgroundColor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fillRect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;allChildren&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;offsetLeft&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;allChildren&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;offsetTop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;allChildren&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;offsetWidth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;allChildren&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;offsetHeight&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;restore&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;生成图片&quot;&gt;生成图片&lt;/h3&gt;
+
+&lt;p&gt;canvas.toDataURL(type, quality):&lt;/p&gt;
+
+&lt;p&gt;返回值：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;图片数据地址&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;type: 可以指定image/jpeg或者image/png，默认： image/png&lt;/li&gt;
+  &lt;li&gt;quality: 图片质量，设置范围： 0~1.0&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;saveToImage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;canvas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;toDataURL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;结语&quot;&gt;结语&lt;/h3&gt;
+
+&lt;p&gt;这是思路，因为项目比较赶，有些渲染部分都是写死的，有兴趣的可以直接参看html2canvas的源码，或者自己尝试。&lt;/p&gt;
+
+&lt;h4 id=&quot;tips&quot;&gt;TIPS&lt;/h4&gt;
+&lt;p&gt;提供几条在实际项目中遇到的问题：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;需求2的图片预览：
+    &lt;ul&gt;
+      &lt;li&gt;pc无问题&lt;/li&gt;
+      &lt;li&gt;android无问题&lt;/li&gt;
+      &lt;li&gt;ios有问题：ios的安全机制，不允许直接使用修改&lt;code class=&quot;highlighter-rouge&quot;&gt;img src&lt;/code&gt;的方式来改变图片，新建img标签也会有这个问题，hack方法：设置&lt;code class=&quot;highlighter-rouge&quot;&gt;background-image&lt;/code&gt;来替代img，不同尺寸的高宽变化就需要专门解决一下&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;图片生成会出现模糊：&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;问题的本质是在高清屏的显示实现精度不同：&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;解决方案： 不管当前的devicePixelRatio的值是多少，统一将canvasDOM节点的width属性设置为其csswidth属性的两倍，同理将height属性也设置为cssheight属性的两倍&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;getPixelRatio&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;backingStore&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;backingStorePixelRatio&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;  
+        &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;webkitBackingStorePixelRatio&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;  
+        &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mozBackingStorePixelRatio&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;  
+        &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msBackingStorePixelRatio&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;  
+        &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;oBackingStorePixelRatio&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;  
+        &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;backingStorePixelRatio&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+  
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;devicePixelRatio&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;backingStore&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;参考：
+  &lt;a href=&quot;https://blog.csdn.net/qyaroon/article/details/51916150&quot;&gt;Canvas 在高清屏下绘制图片变模糊的解决方法&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">需求 HTML内容定制编辑后，把完整的HTML块生成成图片 提供预览 图片清晰</summary></entry><entry><title type="html">meta标签的常用设置项</title><link href="/html/2018/04/29/meta.html" rel="alternate" type="text/html" title="meta标签的常用设置项" /><published>2018-04-29T00:00:00+08:00</published><updated>2018-04-29T00:00:00+08:00</updated><id>/html/2018/04/29/meta</id><content type="html" xml:base="/html/2018/04/29/meta.html">&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 使用 HTML5 doctype，不区分大小写 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;lang=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;zh-cmn-Hans&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 更加标准的 lang 属性写法 http://zhi.hu/XyIa --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;head&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 声明文档使用的字符编码 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;charset=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'utf-8'&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 优先使用 IE 最新版本和 Chrome --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;http-equiv=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;X-UA-Compatible&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;IE=edge,chrome=1&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 页面描述 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;description&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;不超过150个字符&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 页面关键词 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;keywords&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 网页作者 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;author&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;name, email@gmail.com&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 搜索引擎抓取 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;robots&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;index,follow&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 为移动设备添加 viewport --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;viewport&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- `width=device-width` 会导致 iPhone 5 添加到主屏后以 WebApp 全屏模式打开页面时出现黑边 http://bigc.at/ios-webapp-viewport-meta.orz --&amp;gt;&lt;/span&gt;
+
+
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iOS 设备 begin --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;metan&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ame=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-mobile-web-app-title&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;标题&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 添加到主屏后的标题（iOS 6 新增） --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-mobile-web-app-capable&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;yes&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 是否启用 WebApp 全屏模式，删除苹果默认的工具栏和菜单栏 --&amp;gt;&lt;/span&gt;
+
+
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-itunes-app&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;app-id=myAppStoreID, affiliate-data=myAffiliateData, app-argument=myURL&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 添加智能 App 广告条 Smart App Banner（iOS 6+ Safari） --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-mobile-web-app-status-bar-style&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;black&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 设置苹果工具栏颜色 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;format-detection&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;telphone=no, email=no&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 忽略页面中的数字识别为电话，忽略email识别 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 启用360浏览器的极速模式(webkit) --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;renderer&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;webkit&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 避免IE使用兼容模式 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;http-equiv=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;X-UA-Compatible&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;IE=edge&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 针对手持设备优化，主要是针对一些老的不识别viewport的浏览器，比如黑莓 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;HandheldFriendly&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 微软的老式浏览器 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;MobileOptimized&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;320&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- uc强制竖屏 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;screen-orientation&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;portrait&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- QQ强制竖屏 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;x5-orientation&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;portrait&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- UC强制全屏 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;full-screen&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;yes&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- QQ强制全屏 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;x5-fullscreen&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- UC应用模式 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;browsermode&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;application&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- QQ应用模式 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;x5-page-mode&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;app&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- windows phone 点击无高光 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;msapplication-tap-highlight&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;no&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iOS 图标 begin --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-icon-precomposed&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/apple-touch-icon-57x57-precomposed.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iPhone 和 iTouch，默认 57x57 像素，必须有 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-icon-precomposed&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;sizes=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;114x114&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/apple-touch-icon-114x114-precomposed.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Retina iPhone 和 Retina iTouch，114x114 像素，可以没有，但推荐有 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;linkr&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;el=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-icon-precomposed&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;sizes=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;144x144&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/apple-touch-icon-144x144-precomposed.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Retina iPad，144x144 像素，可以没有，但推荐有 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iOS 图标 end --&amp;gt;&lt;/span&gt;
+
+
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iOS 启动画面 begin --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-startup-image&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;sizes=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;768x1004&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/splash-screen-768x1004.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iPad 竖屏 768 x 1004（标准分辨率） --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-startup-image&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;sizes=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1536x2008&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/splash-screen-1536x2008.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iPad 竖屏 1536x2008（Retina） --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-startup-image&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;sizes=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1024x748&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/Default-Portrait-1024x748.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iPad 横屏 1024x748（标准分辨率） --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-startup-image&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;sizes=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;2048x1496&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/splash-screen-2048x1496.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iPad 横屏 2048x1496（Retina） --&amp;gt;&lt;/span&gt;
+
+
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-startup-image&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/splash-screen-320x480.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iPhone/iPod Touch 竖屏 320x480 (标准分辨率) --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-startup-image&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;sizes=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;640x960&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/splash-screen-640x960.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iPhone/iPod Touch 竖屏 640x960 (Retina) --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;apple-touch-startup-image&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;sizes=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;640x1136&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/splash-screen-640x1136.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iPhone 5/iPod Touch 5 竖屏 640x1136 (Retina) --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iOS 启动画面 end --&amp;gt;&lt;/span&gt;
+
+
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- iOS 设备 end --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;msapplication-TileColor&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;#000&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Windows 8 磁贴颜色 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;msapplication-TileImage&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;icon.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Windows 8 磁贴图标 --&amp;gt;&lt;/span&gt;
+
+
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;alternate&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;application/rss+xml&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;title=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;RSS&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/rss.xml&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 添加 RSS 订阅 --&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;shortcut icon&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;image/ico&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/favicon.ico&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- 添加 favicon icon --&amp;gt;&lt;/span&gt;
+
+
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;title&amp;gt;&lt;/span&gt;标题&lt;span class=&quot;nt&quot;&gt;&amp;lt;/title&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;参考&quot;&gt;参考&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/yisibl/blog/issues/1&quot;&gt;网红一丝&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://fex.baidu.com/blog/2014/10/html-head-tags/&quot;&gt;百度FEX&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/meta&quot;&gt;MDN-meta&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">```html &amp;lt;!DOCTYPE html&amp;gt;</summary></entry><entry><title type="html">在windows上安装Jekyll</title><link href="/jekyll/2018/04/26/installJekyllOnWindows.html" rel="alternate" type="text/html" title="在windows上安装Jekyll" /><published>2018-04-26T00:00:00+08:00</published><updated>2018-04-26T00:00:00+08:00</updated><id>/jekyll/2018/04/26/installJekyllOnWindows</id><content type="html" xml:base="/jekyll/2018/04/26/installJekyllOnWindows.html">&lt;h2 id=&quot;准备&quot;&gt;准备&lt;/h2&gt;
+
+&lt;p&gt;windows 10 X64&lt;/p&gt;
+
+&lt;p&gt;Ruby环境：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://rubyinstaller.org/downloads/&quot;&gt;Ruby&lt;/a&gt; ，官方推荐安装&lt;strong&gt;Ruby+Devkit 2.4.X&lt;/strong&gt;,保证扩展库的可用性&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Python环境（安装python环境是为了提供代码高亮的支持，没需求的可以忽略）：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.python.org/downloads/windows/&quot;&gt;Python&lt;/a&gt;, 根据自己系统，我选择的是&lt;strong&gt;Windows x86-64 executable installer&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;步骤&quot;&gt;步骤&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;打开下载的Ruby的包，选下路径，一路下一步&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;安装Jekyll：&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gem install Jekyll &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=[&lt;/span&gt;version]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;版本号根据需要选择，不加就安装最新的&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;安装bundle：&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gem install bundle &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=[&lt;/span&gt;version]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Jekyll官方文档已经明确说明，版本大于3.8的需要安装bundle&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;安装成功，更新gem&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gem update
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;这里是我在安装的时候遇到的，Jekyll的依赖出现各种版本不匹配或者缺失的问题&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;gem更新完成，可以使用Jekyll的命令，例如：&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;jekyll serve 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;如果还会出现报错，可以使用：&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;后续其他命令也会需要加上&lt;strong&gt;bundle exec&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;到这里Jekyll已经可以使用了，如果还需要增加代码高亮的支持，那么：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;安装python，安装包一路下一步，顶多改改安装路径&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;安装Pygments：&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;pip install Pygments
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;到此安装结束，可以愉快的写博客了。&lt;/p&gt;
+
+&lt;h2 id=&quot;参考&quot;&gt;参考&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://jekyllrb.com/docs/windows/&quot;&gt;Jekyll官方文档&lt;/a&gt;，官方推荐的是on Ubuntu on Windows,要硬装在windows上就按上面的步骤来吧&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://yanhaijing.com/jekyll/2011/12/30/run-jekyll-on-window/&quot;&gt;颜大大的文档&lt;/a&gt;，年份久了点&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/jekyll/jekyll/issues/6227&quot;&gt;官方ISSUE&lt;/a&gt;，主要就是会遇到需要利用bundle exec的命令的问题&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://blog.csdn.net/orangleliu/article/details/25080309&quot;&gt;Gem指令&lt;/a&gt;，可以了解一下&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://istoney.github.io/jekyll/2016/03/10/set-markdown-hightlighter&quot;&gt;markdown代码高亮&lt;/a&gt;，我是不喜欢minia（Jekyll默认主题）的高亮样式，所以找了一个修改方案&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">准备</summary></entry><entry><title type="html">2018 书单</title><link href="/2018/04/08/2018-BookList.html" rel="alternate" type="text/html" title="2018 书单" /><published>2018-04-08T00:00:00+08:00</published><updated>2018-04-08T00:00:00+08:00</updated><id>/2018/04/08/2018-BookList</id><content type="html" xml:base="/2018/04/08/2018-BookList.html">&lt;p&gt;2018-04&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;《你不知道的 JavaScript（上卷）》 作者：Kyle Simpson&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;p&gt;真正理解 js 的好书，包括编译机制，词法机制，原型链，this 出坑指南。在上卷除了 this 的出坑指南很有助于前端解决 this 的指向问题，让我真正理解了为什么 this 会出现指向问题的根本原因；另一个推荐反复阅读的是关于 JS 的‘类’，js 本身就是一个巨大的对象，我们在使用的时候都是依照原型链来调用，‘类’这个东西是面向对象里很重要的点，很多语言也有，引入到 js 里，通过模拟出‘类’的使用，这样带来的最严重的问题就是混淆了 js 本身的机制，不利于真正的用好 js，看完才明白，js 的调用机制到底需不需要去使用其他语言的特性，动态语言就要发挥动态语言的特性，而不是强行引入静态写法来符合大众的口味。&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;</content><author><name></name></author><summary type="html">2018-04</summary></entry><entry><title type="html">2017读掉的书</title><link href="/2017/12/15/2017Read.html" rel="alternate" type="text/html" title="2017读掉的书" /><published>2017-12-15T00:00:00+08:00</published><updated>2017-12-15T00:00:00+08:00</updated><id>/2017/12/15/2017Read</id><content type="html" xml:base="/2017/12/15/2017Read.html">&lt;blockquote&gt;
+  &lt;p&gt;倒序整理&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;在读&quot;&gt;在读&lt;/h3&gt;
+
+&lt;p&gt;《深入浅出 React 和 Redux》 作者：程墨&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;p&gt;React 和 Redux 的入门很好的一本书，我是边看 ant-design 的代码，边看这本书，快速入门和上手。&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;已读&quot;&gt;已读&lt;/h3&gt;
+
+&lt;p&gt;2017-11&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;《深入浅出 Node.js》 作者：朴灵&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;p&gt;朴灵这本书涉及到了 C/C++的层面，看起来会有点生涩，阅读的人可能对 C/C++并没有什么了解，但是对深层次的机制进行描述，其实有助于开阔 Node 入门时的视野，不再是局限在单纯的 js 或者服务端开发里面，值得反复推敲。&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;《Node.js 实战》 作者：Mike Cantelon,Marc Harter, T.J.Holowaychuk,Nathan Rajlich&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;p&gt;看作者里面有 TJ，对于了解过 Node 的人都知道，TJ 给 Node 社区贡献超级多的高质量模块，Node 的社区的偶像级人物。这本实战写的时间比较早了，如果要照着里面的例子往下走，要注意一下书中 node 的版本和引入的模块的版本，我针对几个例子也做了一些实践，放在&lt;a href=&quot;https://github.com/Myu1533/NodeInAction.git&quot;&gt;NodeInAction&lt;/a&gt;里面，欢迎查看和指正。跟着这本书走完，后续能持续巩固的话，开发个人 Node 的项目已经不是什么问题了，推荐指数无数星。&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;2017-10&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;《智能时代》 作者：吴军&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;p&gt;打通眼界的一本书，智能到底是什么，现在的智能做到了什么，在做什么，能做什么，都做了说明，易于理解。各行业的人都能在书里找到自己行业的因为智能将会怎么变化，行业革命的驱动怎么来，为了不被淘汰，可以做准备了。&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;2017-08&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;《图解 HTTP》作者：上野宣&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;p&gt;HTTP 的入门书，通俗易懂，我借这本书解决了几个 http 问题，打基础的好书&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;2017-05&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;《JavaScript 设计模式与开发实践》 作者：曾探&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;p&gt;推荐必读。看起来可能不会很好理解，结合自己开发的过程，codereview 以后会发现其实用过，书里给了命名，再去看其他源码的话，从好的源码中遍地都是各种模式，阅读源码的理解效率也会高很多，对技术有追求的人，值得反复阅读&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;</content><author><name></name></author><summary type="html">倒序整理</summary></entry><entry><title type="html">Jekyll Blog 上线</title><link href="/2017/11/27/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Jekyll Blog 上线" /><published>2017-11-27T17:30:01+08:00</published><updated>2017-11-27T17:30:01+08:00</updated><id>/2017/11/27/welcome-to-jekyll</id><content type="html" xml:base="/2017/11/27/welcome-to-jekyll.html">&lt;p&gt;从 Hexo 跳到 jekyll&lt;/p&gt;
+
+&lt;p&gt;更喜欢 Jekyll 的简洁&lt;/p&gt;
+
+&lt;p&gt;过去的文章都没有做迁移&lt;/p&gt;
+
+&lt;p&gt;重新出发专注的写点东西&lt;/p&gt;
+
+&lt;p&gt;学习的心得/技术的分享/翻译&lt;/p&gt;
+
+&lt;p&gt;总之，记录起来&lt;/p&gt;</content><author><name></name></author><summary type="html">从 Hexo 跳到 jekyll</summary></entry><entry><title type="html">vue ssr 简介(译)</title><link href="/translate/2017/05/31/vue-ssr-introduce.html" rel="alternate" type="text/html" title="vue ssr 简介(译)" /><published>2017-05-31T00:00:00+08:00</published><updated>2017-05-31T00:00:00+08:00</updated><id>/translate/2017/05/31/vue-ssr-introduce</id><content type="html" xml:base="/translate/2017/05/31/vue-ssr-introduce.html">&lt;h3 id=&quot;vuejs-server-side-rendering-guide&quot;&gt;Vue.js Server-Side Rendering Guide&lt;/h3&gt;
+
+&lt;h3 id=&quot;vuejs-服务端渲染指南&quot;&gt;Vue.js 服务端渲染指南&lt;/h3&gt;
+
+&lt;h6 id=&quot;note-this-guide-requires-the-following-minimum-versions-of-vue-and-supporting-libraries&quot;&gt;&lt;strong&gt;Note:&lt;/strong&gt; this guide requires the following minimum versions of Vue and supporting libraries:&lt;/h6&gt;
+
+&lt;h6 id=&quot;注该指南至少需要的最低版本的-vue-核心库和支持库&quot;&gt;&lt;strong&gt;注：&lt;/strong&gt;该指南至少需要的最低版本的 Vue 核心库和支持库：&lt;/h6&gt;
+
+&lt;h6 id=&quot;vue--vue-server-renderer--230&quot;&gt;vue &amp;amp; vue-server-renderer &amp;gt;= 2.3.0&lt;/h6&gt;
+
+&lt;h6 id=&quot;vue-router--250&quot;&gt;vue-router &amp;gt;= 2.5.0&lt;/h6&gt;
+
+&lt;h6 id=&quot;vue-loader--1200--vue-style-loader--300&quot;&gt;vue-loader &amp;gt;= 12.0.0 &amp;amp; vue-style-loader &amp;gt;= 3.0.0&lt;/h6&gt;
+
+&lt;p&gt;If you have previously used Vue 2.2 with SSR, you will notice that the recommended code structure is
+now &lt;a href=&quot;https://ssr.vuejs.org/en/structure.html&quot;&gt;a bit different&lt;/a&gt; (with the new &lt;a href=&quot;https://ssr.vuejs.org/en/api.html#runinnewcontext&quot;&gt;runInNewContext&lt;/a&gt; option set to false
+).&lt;/p&gt;
+
+&lt;p&gt;若你已经用 Vue 2.2 做服务端渲染（SSR）, 你会发现建议代码实践的提示现在&lt;a href=&quot;https://ssr.vuejs.org/en/structure.html&quot;&gt;有些不同&lt;/a&gt;了(当&lt;a href=&quot;https://ssr.vuejs.org/en/api.html#runinnewcontext&quot;&gt;runInNewContext&lt;/a&gt;选项设置为 false 的时候)&lt;/p&gt;
+
+&lt;p&gt;Your existing app should continue to work, but it’s recommended to migrate to the new recommendations.&lt;/p&gt;
+
+&lt;p&gt;你的应用会继续工作，但是规范将会迁移到新的推荐规范。&lt;/p&gt;
+
+&lt;h3 id=&quot;what-is-server-side-rendering-ssr&quot;&gt;What is Server-Side Rendering (SSR)?&lt;/h3&gt;
+
+&lt;h3 id=&quot;什么是服务端渲染ssr&quot;&gt;什么是服务端渲染（SSR）？&lt;/h3&gt;
+
+&lt;p&gt;Vue.js is a framework for building client-side applications.&lt;/p&gt;
+
+&lt;p&gt;Vue.js 是构建客户端应用的框架。&lt;/p&gt;
+
+&lt;p&gt;By default, Vue components produce and manipulate DOM in the browser as output.&lt;/p&gt;
+
+&lt;p&gt;默认，Vue 组件在浏览器端输出和操作 DOM。&lt;/p&gt;
+
+&lt;p&gt;However, it is also possible to render the same components into HTML strings on the server,send them directly to the browser,and finally “hydrate” the static markup into a fully interactive app on the client.&lt;/p&gt;
+
+&lt;p&gt;然而，同样可以在服务端渲染相同组件到 HTML 里面，把他们直接发送到浏览器，最后在客户端把静态标签变为富交互的应用。&lt;/p&gt;
+
+&lt;p&gt;A server-rendered Vue.js app can also be considered “isomorphic” or “universal”,in the sense that the majority of your app’s code runs on both the server &lt;strong&gt;and&lt;/strong&gt; the client.&lt;/p&gt;
+
+&lt;p&gt;一个服务端渲染的 Vue.js 应用能被认为是同构的或者是通用的，你应用的大部分代码是运行在服务端和客户端的。&lt;/p&gt;
+
+&lt;h3 id=&quot;why-ssr&quot;&gt;Why SSR?&lt;/h3&gt;
+
+&lt;h3 id=&quot;为什么要用-ssr&quot;&gt;为什么要用 SSR？&lt;/h3&gt;
+
+&lt;p&gt;Compared to a traditional SPA (Single-Page Application),the advantage of SSR primarily lies in:&lt;/p&gt;
+
+&lt;p&gt;和传统的单页应用相比，SSR 的主要优势有：&lt;/p&gt;
+
+&lt;p&gt;Better SEO, as the search engine crawlers will directly see the fully rendered page.&lt;/p&gt;
+
+&lt;p&gt;更好的 SEO，搜索引擎的爬虫能直接看到完整的渲染页面。&lt;/p&gt;
+
+&lt;p&gt;Note that as of now, Google and Bing can index synchronous JavaScript applications just fine.&lt;/p&gt;
+
+&lt;p&gt;到目前为止，google 和 bing 可以很好的索引和同步 JavaScript 应用。&lt;/p&gt;
+
+&lt;p&gt;Synchronous being the key word there.&lt;/p&gt;
+
+&lt;p&gt;同步是关键。&lt;/p&gt;
+
+&lt;p&gt;If your app starts with a loading spinner, then fetches content via Ajax,the crawler will not wait for you to finish.&lt;/p&gt;
+
+&lt;p&gt;如果你的应用在启动的时候有个载入列表，通过 AJAX 获取内容，爬虫可不会等着你完成。&lt;/p&gt;
+
+&lt;p&gt;This means if you have content fetched asynchronously on pages where SEO is important,SSR might be necessary.&lt;/p&gt;
+
+&lt;p&gt;这意味着在重点 SEO 的页面是异步加载的，那么服务器渲染是必然的。&lt;/p&gt;
+
+&lt;h4 id=&quot;faster-time-to-content&quot;&gt;Faster time-to-content,&lt;/h4&gt;
+
+&lt;h4 id=&quot;更快的内容加载&quot;&gt;更快的内容加载，&lt;/h4&gt;
+
+&lt;h4 id=&quot;especially-on-slow-internet-or-slow-devices&quot;&gt;especially on slow internet or slow devices.&lt;/h4&gt;
+
+&lt;h4 id=&quot;特别是在低速网络或者运行慢的设备上&quot;&gt;特别是在低速网络或者运行慢的设备上。&lt;/h4&gt;
+
+&lt;p&gt;Server-rendered markup doesn’t need to wait until all JavaScript has been downloaded and executed to be
+displayed, so your user will see a fully-rendered page sooner.&lt;/p&gt;
+
+&lt;p&gt;服务器端显示不需要等到所有 js 下载完成和执行才显示，所以你的用户将很快看到整个页面。&lt;/p&gt;
+
+&lt;p&gt;This generally results in better user experience, and can be critical for applications where time-to-content is directly associated with conversion rate.&lt;/p&gt;
+
+&lt;p&gt;这个结果在用户体验方面是更好的，也能用于评定渲染时间直接关系到转换率的应用。&lt;/p&gt;
+
+&lt;h3 id=&quot;there-are-also-some-trade-offs-to-consider-when-using-ssr&quot;&gt;There are also some trade-offs to consider when using SSR:&lt;/h3&gt;
+
+&lt;h3 id=&quot;在用-ssr-的时候有几点需要权衡&quot;&gt;在用 SSR 的时候,有几点需要权衡：&lt;/h3&gt;
+
+&lt;p&gt;Development constraints. Browser-specific code can only be used inside certain lifecycle hooks;some external libraries may need special treatment to be able to run in a server-rendered app.&lt;/p&gt;
+
+&lt;p&gt;开发限制。依赖浏览器特性的代码只能在内部关键的生命周期钩子上；一些外部库在服务端渲染应用上也需要特殊处理。&lt;/p&gt;
+
+&lt;p&gt;More involved build setup and deployment requirements.&lt;/p&gt;
+
+&lt;p&gt;更多的构建设置和发布需求的耦合。&lt;/p&gt;
+
+&lt;p&gt;Unlike a fully static SPA that can be deployed on any static file server,a server-rendered app requires an environment where a Node.js server can run.&lt;/p&gt;
+
+&lt;p&gt;不在像完整个的静态单页应用该可以被发布在任何静态服务器上，服务端渲染应用更需要一个 node 服务环境。&lt;/p&gt;
+
+&lt;h3 id=&quot;more-server-side-load&quot;&gt;More server-side load.&lt;/h3&gt;
+
+&lt;h3 id=&quot;更多的服务端加载&quot;&gt;更多的服务端加载。&lt;/h3&gt;
+
+&lt;p&gt;Rendering a full app in Node.js is obviously going to be more CPU-intensive than just serving static files,so if you expect high traffic, be prepared for corresponding server load and wisely employ caching strategies.&lt;/p&gt;
+
+&lt;p&gt;node 渲染一个完整应用，光服务静态文件就需要更多的密集型 CPU。因此如果你期望有高通信，就需要准备相应的服务载入和合理的使用缓存策略。&lt;/p&gt;
+
+&lt;p&gt;Before using SSR for your app, the first question you should ask it whether you actually need it.&lt;/p&gt;
+
+&lt;p&gt;在应用 SSR 之前，先问问自己是否真的需要。&lt;/p&gt;
+
+&lt;p&gt;It mostly depends on how important time-to-content is for your app.&lt;/p&gt;
+
+&lt;p&gt;主要依赖于渲染时间对应用的重要程度。&lt;/p&gt;
+
+&lt;p&gt;For example, if you are building an internal dashboard where an extra few hundred milliseconds on initial load doesn’t matter that much, SSR would be an overkill.&lt;/p&gt;
+
+&lt;p&gt;例如，你在做一个内部仪表盘，额外初始化的时候额外多几百号面也没什么影响，用 SSR 就过分了。&lt;/p&gt;
+
+&lt;p&gt;However, in cases where time-to-content is absolutely critical, SSR can help you achieve the best possible initial load performance.&lt;/p&gt;
+
+&lt;p&gt;然而，渲染时间是必要的评定标准，SSR 将帮助你在初始化表现上达到最好的可能。&lt;/p&gt;
+
+&lt;h3 id=&quot;ssr-vs-prerendering&quot;&gt;SSR vs Prerendering&lt;/h3&gt;
+
+&lt;p&gt;If you’re only investigating SSR to improve the SEO of a handful of marketing pages (e.g. /
+, /about
+, /contact
+, etc), then you probably want &lt;strong&gt;prerendering&lt;/strong&gt; instead.&lt;/p&gt;
+
+&lt;p&gt;如果你只是需要 SSR 在少数交易页面的 SEO 提升，那么预加载是替代方案。&lt;/p&gt;
+
+&lt;p&gt;Rather than using a web server to compile HTML on-the-fly, prerendering simply generates static HTML files for specific routes at build time.&lt;/p&gt;
+
+&lt;p&gt;相比于网页编译即时 HTML，在构建的时候预加载可以以简单方式生成特殊路由的静态 HTML 文件。&lt;/p&gt;
+
+&lt;p&gt;The advantage is setting up prerendering is much simpler and allows you to keep your frontend as a fully static site.&lt;/p&gt;
+
+&lt;p&gt;设置预加载的优势是更简单，允许你保持前端是一个完整的前端站点。&lt;/p&gt;
+
+&lt;p&gt;If you’re using Webpack, you can easily add prerendering with the &lt;a href=&quot;https://github.com/chrisvfritz/prerender-spa-plugin&quot;&gt;prerender-spa-plugin&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;如果你用 Webpack，你用 &lt;a href=&quot;https://github.com/chrisvfritz/prerender-spa-plugin&quot;&gt;prerender-spa-plugin&lt;/a&gt;就可以轻易的增加预加载功能。&lt;/p&gt;
+
+&lt;p&gt;It’s been extensively tested with Vue apps - and in fact, &lt;a href=&quot;https://github.com/chrisvfritz&quot;&gt;the creator&lt;/a&gt; is a member of the Vue core team.&lt;/p&gt;
+
+&lt;p&gt;事实上，这已经被广泛的应用在 Vue 应用上，&lt;a href=&quot;https://github.com/chrisvfritz&quot;&gt;创造者&lt;/a&gt;来自于 Vue 核心代码团队。&lt;/p&gt;
+
+&lt;h3 id=&quot;about-this-guide&quot;&gt;About This Guide&lt;/h3&gt;
+
+&lt;h3 id=&quot;关于这份指南&quot;&gt;关于这份指南&lt;/h3&gt;
+
+&lt;p&gt;This guide is focused on server-rendered Single-Page Applications using Node.js as the server.&lt;/p&gt;
+
+&lt;p&gt;这份指南专注于用 Node 作为服务器的服务器端渲染的单页应用。&lt;/p&gt;
+
+&lt;p&gt;Mixing Vue SSR with other backend setups is a topic of its own and is not covered in this guide.&lt;/p&gt;
+
+&lt;p&gt;在其他后端服务用 Vue SSR 是另外一个话题，本指南将不会包含这方面的内容。&lt;/p&gt;
+
+&lt;p&gt;This guide will be very in-depth and assumes you are already familiar with Vue.js itself, and have decent working knowledge of Node.js and webpack.&lt;/p&gt;
+
+&lt;p&gt;这份指南非常深入解析 Vue SSR，是你以已经熟悉 Vue.js,掌握 node 和 webpack 的相关知识为前提。&lt;/p&gt;
+
+&lt;p&gt;If you prefer a higher-level solution that provides a smooth out-of-the-box experience, you should probably give &lt;a href=&quot;http://nuxtjs.org/&quot;&gt;Nuxt.js&lt;/a&gt; a try.&lt;/p&gt;
+
+&lt;p&gt;如果你更倾向于用过更高级的，提供封装完好的体验的解决方案，你应该试试 &lt;a href=&quot;http://nuxtjs.org/&quot;&gt;Nuxt.js&lt;/a&gt; 。&lt;/p&gt;
+
+&lt;p&gt;It’s built upon the same Vue stack but abstracts away a lot of the boilerplate, and provides some extra features such as static site generation.&lt;/p&gt;
+
+&lt;p&gt;它同样建立在 Vue 的堆栈上面，但是抽了很多引用，并提供一些额外特性，例如静态站点迭代器。&lt;/p&gt;
+
+&lt;p&gt;However, it may not suit your use case if you need more direct control of your app’s structure.&lt;/p&gt;
+
+&lt;p&gt;然而，如果你对你的应用该结构需要更多直接操作，&lt;a href=&quot;http://nuxtjs.org/&quot;&gt;Nuxt.js&lt;/a&gt; 可能不适合。&lt;/p&gt;
+
+&lt;p&gt;Regardless, it would still be beneficial to read through this guide to better understand how things work together.&lt;/p&gt;
+
+&lt;p&gt;无论如何，通过阅读本指南有助于理解所有事务是如何一起共工作的。&lt;/p&gt;
+
+&lt;p&gt;As you read along, it would be helpful to refer to the official &lt;a href=&quot;https://github.com/vuejs/vue-hackernews-2.0/&quot;&gt;HackerNews Demo&lt;/a&gt;, which makes use of most of the techniques covered in this guide.&lt;/p&gt;
+
+&lt;p&gt;就像你看到的，参考官方案例&lt;a href=&quot;https://github.com/vuejs/vue-hackernews-2.0/&quot;&gt;HackerNews Demo&lt;/a&gt;，因为里面对指南里涉及的大多数技术的用法都有包含。&lt;/p&gt;
+
+&lt;p&gt;Finally, note that the solutions in this guide are not definitive - we’ve found them to be working well for us, but that doesn’t mean they cannot be improved.&lt;/p&gt;
+
+&lt;p&gt;最后，注意指南里的解决方案不是一定的，虽然对于我们来说他们工作的很好，并不意味着它们是不可改进的。&lt;/p&gt;
+
+&lt;p&gt;They might get revised in the future - and feel free to contribute by submitting pull requests!&lt;/p&gt;
+
+&lt;p&gt;他们在未来可能会被修改，欢迎提交 pr 来提交贡献。&lt;/p&gt;</content><author><name></name></author><summary type="html">Vue.js Server-Side Rendering Guide</summary></entry><entry><title type="html">vue ssr 基本用法(译)</title><link href="/translate/2017/05/31/vue-ssr-guide.html" rel="alternate" type="text/html" title="vue ssr 基本用法(译)" /><published>2017-05-31T00:00:00+08:00</published><updated>2017-05-31T00:00:00+08:00</updated><id>/translate/2017/05/31/vue-ssr-guide</id><content type="html" xml:base="/translate/2017/05/31/vue-ssr-guide.html">&lt;h3 id=&quot;installation&quot;&gt;Installation&lt;/h3&gt;
+
+&lt;h3 id=&quot;安装&quot;&gt;安装&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;npm install vue vue-server-renderer &lt;span class=&quot;nt&quot;&gt;--save&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;We will be using NPM throughout the guide, but feel free to use &lt;a href=&quot;https://yarnpkg.com/en/&quot;&gt;Yarn&lt;/a&gt; instead.&lt;/p&gt;
+
+&lt;p&gt;整个指南我们都用 NPM，不过也可以用 &lt;a href=&quot;https://yarnpkg.com/en/&quot;&gt;Yarn&lt;/a&gt; 代替。&lt;/p&gt;
+
+&lt;h4 id=&quot;notes&quot;&gt;Notes&lt;/h4&gt;
+
+&lt;h4 id=&quot;注意&quot;&gt;注意&lt;/h4&gt;
+
+&lt;p&gt;It’s recommended to use Node.js version 6+.
+vue-server-renderer
+and vue
+must have matching versions.&lt;/p&gt;
+
+&lt;p&gt;建议 Node v6 以上。
+vue-server-renderer
+和 vue
+必须用对应的版本。
+vue-server-renderer
+relies on some Node.js native modules and therefore can only be used in Node.js.&lt;/p&gt;
+
+&lt;p&gt;vue-server-renderer 依赖 Node 本身的模块，因此只能应用在 node 上面。&lt;/p&gt;
+
+&lt;p&gt;We may provide a simpler build that can be run in other JavaScript runtimes in the future.&lt;/p&gt;
+
+&lt;p&gt;我们在未来会提供可以跑在其他 js 解析器的更简单的构建。&lt;/p&gt;
+
+&lt;h3 id=&quot;rendering-a-vue-instance&quot;&gt;Rendering a Vue Instance&lt;/h3&gt;
+
+&lt;h3 id=&quot;渲染-vue-实例&quot;&gt;渲染 Vue 实例&lt;/h3&gt;
+
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Step 1: Create a Vue instance&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 第一步： 创建Vue实例&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Vue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'vue'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Vue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;`&amp;lt;div&amp;gt;Hello World&amp;lt;/div&amp;gt;`&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Step 2: Create a renderer&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 第二步：创建渲染器&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'vue-server-renderer'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createRenderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Step 3: Render the Vue instance to HTML&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 第三步：把Vue实例渲染到HTML&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;renderToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// =&amp;gt; &amp;lt;div data-server-rendered=&quot;true&quot;&amp;gt;hello world&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;integrating-with-a-server&quot;&gt;Integrating with a Server&lt;/h3&gt;
+
+&lt;h3 id=&quot;服务端集成&quot;&gt;服务端集成&lt;/h3&gt;
+
+&lt;p&gt;It is pretty straightforward when used inside a Node.js server, for example &lt;a href=&quot;https://expressjs.com/&quot;&gt;Express&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;在 Node 里面使用相当的简单，例如&lt;a href=&quot;https://expressjs.com/&quot;&gt;Express&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;npm install express &lt;span class=&quot;nt&quot;&gt;--save&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Vue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'vue'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;server&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'express'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)();&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'vue-server-renderer'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createRenderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'*'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;res&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Vue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;`&amp;lt;div&amp;gt;The visited URL is: &amp;lt;/div&amp;gt;`&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;renderToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;res&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;status&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;500&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Internal Server Error'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;res&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;` &amp;lt;!DOCTYPE html&amp;gt; &amp;lt;html lang=&quot;en&quot;&amp;gt; &amp;lt;head&amp;gt;&amp;lt;title&amp;gt;Hello&amp;lt;/title&amp;gt;&amp;lt;/head&amp;gt; &amp;lt;body&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;lt;/body&amp;gt; &amp;lt;/html&amp;gt; `&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;listen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8080&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;using-a-page-template&quot;&gt;Using a Page Template&lt;/h3&gt;
+
+&lt;h3 id=&quot;使用页面模板&quot;&gt;使用页面模板&lt;/h3&gt;
+
+&lt;p&gt;When you render a Vue app, the renderer only generates the markup of the app.&lt;/p&gt;
+
+&lt;p&gt;当你渲染 Vue 应用的时候，渲染器只生成应用的标记。&lt;/p&gt;
+
+&lt;p&gt;In the example we had to wrap the output with an extra HTML page shell.&lt;/p&gt;
+
+&lt;p&gt;在案例里，我们用一个额外的 HTML 页面可以包裹输出。&lt;/p&gt;
+
+&lt;p&gt;To simplify this, you can directly provide a page template when creating the renderer.&lt;/p&gt;
+
+&lt;p&gt;为简化这步操作，你可以在创建渲染器的时候直接提供页面模板。&lt;/p&gt;
+
+&lt;p&gt;Most of the time we will put the page template in its own file, e.g. index.template.html:&lt;/p&gt;
+
+&lt;p&gt;大多数时候我们把页面模板放在它自己的文件里，例如 index.template.html：&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;lang=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;head&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;title&amp;gt;&lt;/span&gt;Hello&lt;span class=&quot;nt&quot;&gt;&amp;lt;/title&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/head&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;body&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;&amp;lt;!--vue-ssr-outlet--&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Notice the &lt;!--vue-ssr-outlet--&gt; comment – this is where your app’s markup will be injected.&lt;/p&gt;
+
+&lt;h4 id=&quot;注意语句这里将是应用标记要注入的地方&quot;&gt;注意&lt;!--vue-ssr-outlet--&gt;语句，这里将是应用标记要注入的地方。&lt;/h4&gt;
+
+&lt;p&gt;We can then read and pass the file to the Vue renderer:&lt;/p&gt;
+
+&lt;p&gt;我们将读取并传送文件给 Vue 的渲染器：&lt;/p&gt;
+
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;createRenderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'fs'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;readFileSync&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'./index.template.html'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'utf-8'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;renderToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// will be the full page with app content injected.&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;template-interpolation&quot;&gt;Template Interpolation&lt;/h3&gt;
+
+&lt;h3 id=&quot;模板插入&quot;&gt;模板插入&lt;/h3&gt;
+
+&lt;p&gt;The template also supports simple interpolation.&lt;/p&gt;
+
+&lt;p&gt;模板支持简单插入&lt;/p&gt;
+
+&lt;p&gt;Given the following template:&lt;/p&gt;
+
+&lt;p&gt;上例子：&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&amp;gt;&lt;/span&gt;
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;head&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;title&amp;gt;&lt;/span&gt;title&lt;span class=&quot;nt&quot;&gt;&amp;lt;/title&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;c&quot;&gt;&amp;lt;!-- meta --&amp;gt;&lt;/span&gt;
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;/head&amp;gt;&lt;/span&gt;
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;body&amp;gt;&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;&amp;lt;!--vue-ssr-outlet--&amp;gt;&lt;/span&gt;
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;We can provide interpolation data by passing a “render context object” as the second argument to renderToString
+:&lt;/p&gt;
+
+&lt;p&gt;我们提供通过传递‘渲染上下文对象’作为第二参数的插入数据：&lt;/p&gt;
+
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'hello'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;meta&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;` &amp;lt;meta ...&amp;gt; &amp;lt;meta ...&amp;gt; `&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;renderer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;renderToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// page title will be &quot;hello&quot;&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;// with meta tags injected&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The context object can also be shared with the Vue app instance, allowing components to dynamically register data for template interpolation.&lt;/p&gt;
+
+&lt;p&gt;上下文对象可以和 Vue 应用实例共享，允许组件动态的给模板插入注册数据。&lt;/p&gt;
+
+&lt;p&gt;In addition, the template supports some advanced features such as:&lt;/p&gt;
+
+&lt;p&gt;此外，模板支持一些高级特性，例如：&lt;/p&gt;
+
+&lt;p&gt;Auto injection of critical CSS when using *.vue components;&lt;/p&gt;
+
+&lt;p&gt;在使用 vue 单页组件的时候自动注入 css&lt;/p&gt;
+
+&lt;p&gt;Auto injection of asset links and resource hints when using clientManifest;&lt;/p&gt;
+
+&lt;p&gt;当使用 clientManifest 的时候，自动注入资源链接和资源提示；&lt;/p&gt;
+
+&lt;p&gt;Auto injection and XSS prevention when embedding Vuex state for client-side hydration.&lt;/p&gt;
+
+&lt;p&gt;当在客户端混合 Vuex 买点的时候，自动注入和阻止 XSS。&lt;/p&gt;
+
+&lt;p&gt;We will discuss these when we introduce the associated concepts later in the guide.&lt;/p&gt;
+
+&lt;p&gt;在指南里，我们将在介绍聚合概念的时候继续讨论。&lt;/p&gt;</content><author><name></name></author><summary type="html">Installation</summary></entry></feed>

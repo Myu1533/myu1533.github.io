@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>VuePress | 开始</title>
+    <meta name="description" content="translation for VuePress">
+    
+    
+    <link rel="preload" href="/vuepress/assets/css/0.styles.1b4d359f.css" as="style"><link rel="preload" href="/vuepress/assets/js/app.c825b02c.js" as="script"><link rel="preload" href="/vuepress/assets/js/5.04e8eb9f.js" as="script"><link rel="prefetch" href="/vuepress/assets/js/6.674d25a0.js"><link rel="prefetch" href="/vuepress/assets/js/1.b04a3e4c.js"><link rel="prefetch" href="/vuepress/assets/js/2.0a11c381.js"><link rel="prefetch" href="/vuepress/assets/js/3.3623aeda.js"><link rel="prefetch" href="/vuepress/assets/js/4.9f9150f5.js"><link rel="prefetch" href="/vuepress/assets/js/7.1cf34d3f.js"><link rel="prefetch" href="/vuepress/assets/js/8.4a59d179.js"><link rel="prefetch" href="/vuepress/assets/js/9.081067cc.js"><link rel="prefetch" href="/vuepress/assets/js/10.c53633b6.js"><link rel="prefetch" href="/vuepress/assets/js/11.8fd32530.js"><link rel="prefetch" href="/vuepress/assets/js/12.62c74588.js"><link rel="prefetch" href="/vuepress/assets/js/13.fc7d3ce0.js">
+    <link rel="stylesheet" href="/vuepress/assets/css/0.styles.1b4d359f.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div><a href="/vuepress/" class="home-link router-link-active"><!----><span class="site-name">
+      VuePress
+    </span></a><div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""><!----></div><nav class="nav-links can-hide"><div class="nav-item"><a href="/vuepress/guide/" class="nav-link router-link-active">指南</a></div><div class="nav-item"><a href="/vuepress/configReference/" class="nav-link">参考配置</a></div><div class="nav-item"><a href="/vuepress/defaultThemeConfig/" class="nav-link">默认主题</a></div><!----></nav></div></header><div class="sidebar-mask"></div><div class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/vuepress/guide/" class="nav-link router-link-active">指南</a></div><div class="nav-item"><a href="/vuepress/configReference/" class="nav-link">参考配置</a></div><div class="nav-item"><a href="/vuepress/defaultThemeConfig/" class="nav-link">默认主题</a></div><!----></nav><ul class="sidebar-links"><li><a href="/vuepress/guide/" class="sidebar-link">Vuepress 翻译</a></li><li><a href="/vuepress/guide/introduce.html" class="sidebar-link">简介</a></li><li><a href="/vuepress/guide/gettingStart.html" class="active sidebar-link">开始</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/vuepress/guide/gettingStart.html#全局安装" class="sidebar-link">全局安装</a></li><li class="sidebar-sub-header"><a href="/vuepress/guide/gettingStart.html#在已有项目中使用" class="sidebar-link">在已有项目中使用</a></li></ul></li><li><a href="/vuepress/guide/configuration.html" class="sidebar-link">配置</a></li><li><a href="/vuepress/guide/assetHandling.html" class="sidebar-link">资源处理</a></li><li><a href="/vuepress/guide/markdownExtensions.html" class="sidebar-link">Markdown 扩展</a></li><li><a href="/vuepress/guide/useVueInMarkDown.html" class="sidebar-link">在 Markdown 里面使用 Vue</a></li><li><a href="/vuepress/guide/customTheme.html" class="sidebar-link">自定义主题</a></li><li><a href="/vuepress/guide/internationalization.html" class="sidebar-link">国际化</a></li><li><a href="/vuepress/guide/deploying.html" class="sidebar-link">部署</a></li></ul></div><div class="page"><div class="content"><h1 id="开始"><a href="#开始" aria-hidden="true" class="header-anchor">#</a> 开始</h1><blockquote><p>兼容性注释
+VuePress 基于 Node.js &gt;= 8.</p></blockquote><h2 id="全局安装"><a href="#全局安装" aria-hidden="true" class="header-anchor">#</a> 全局安装</h2><p>如果你想随时随地使用 VuePress，你可以全局安装：</p><pre class="language-bash"><code><span class="token comment"># install globally</span>
+yarn global add vuepress <span class="token comment"># OR npm install -g vuepress</span>
+
+<span class="token comment"># create a markdown file</span>
+<span class="token keyword">echo</span> <span class="token string">'# Hello VuePress'</span> <span class="token operator">&gt;</span> README.md
+
+<span class="token comment"># start writing</span>
+vuepress dev
+
+<span class="token comment"># build</span>
+vuepress build
+</code></pre><h2 id="在已有项目中使用"><a href="#在已有项目中使用" aria-hidden="true" class="header-anchor">#</a> 在已有项目中使用</h2><p>如果你有一个现存的项目，并且想在项目中建立文档，我可以把 VuePress 作为一个本地依赖进行安装。这个安装同样允许你使用持续集成或者在推送的时候使用类似于 Netlify 自动发布的服务。</p><pre class="language-bash"><code><span class="token comment"># install as a local dependency</span>
+yarn add -D vuepress <span class="token comment"># OR npm install -D vuepress</span>
+
+<span class="token comment"># create a docs directory</span>
+<span class="token function">mkdir</span> docs
+<span class="token comment"># create a markdown file</span>
+<span class="token keyword">echo</span> <span class="token string">'# Hello VuePress'</span> <span class="token operator">&gt;</span> docs/README.md
+</code></pre><blockquote><p>警告</p><p>当在一个依赖 webpack 3.x 的现存项目里安装 VuePress 的时候，用 Yarn 代替 npm。Npm 在这类项目里不能生成正确的依赖。</p></blockquote><p>然后，在 package.json 里增加这些脚本：</p><pre class="language-json"><code><span class="token punctuation">{</span>
+  <span class="token property">&quot;scripts&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;docs:dev&quot;</span><span class="token operator">:</span> <span class="token string">&quot;vuepress dev docs&quot;</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;docs:build&quot;</span><span class="token operator">:</span> <span class="token string">&quot;vuepress build docs&quot;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>现在你可以输入：</p><pre class="language-bash"><code>yarn docs:dev <span class="token comment"># OR npm run docs:dev</span>
+</code></pre><p>生成静态资源，执行：</p><pre class="language-bash"><code>yarn docs:build <span class="token comment"># Or npm run docs:build</span>
+</code></pre><p>默认构建文件在 .vuepress/dist 里面， .vuepress/config.js 里通过 dest 字段配置。构建文件可以发布在任何静态文件服务里。可以在<a href="https://vuepress.vuejs.org/guide/deploy.html" target="_blank" rel="noopener noreferrer">发布引导</a>查找如恶化发布到流行服务里。</p></div><!----><div class="content page-nav"><p class="inner"><span class="prev">
+        ← <a href="/vuepress/guide/introduce.html" class="prev">
+          简介
+        </a></span><span class="next"><a href="/vuepress/guide/configuration.html">
+          配置
+        </a> →
+      </span></p></div></div></div></div>
+    <script src="/vuepress/assets/js/5.04e8eb9f.js" defer></script><script src="/vuepress/assets/js/app.c825b02c.js" defer></script>
+  </body>
+</html>
